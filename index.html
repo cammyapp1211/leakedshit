@@ -1,96 +1,118 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script defer src="/_vercel/insights/script.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css"
-    />
-    <title>Vercel HTML Starter</title>
-    <meta
-      name="description"
-      content="High-performance HTML based website template."
-    />
-  </head>
-  <body>
-    <h1>Vercel HTML Starter</h1>
-    <p>
-      This template is a simple, but powerful single
-      <code>index.html</code> file deployed to
-      <a href="https://vercel.com">Vercel</a>. When your site is deployed, all
-      static assets (like HTML, JavaScript, CSS, images, and more) are deployed
-      globally to every
-      <a href="https://vercel.com/docs/concepts/edge-network/overview"
-        >Vercel Edge Network</a
-      >
-      region.
-    </p>
-    <h2>Simple, privacy-friendly analytics</h2>
-    <p>
-      Want to understand your visitor traffic? Vercel Analytics gives you
-      first-party, privacy-friendly traffic analytics for your HTML site. This
-      template is already configured using the following script:
-    </p>
-    <pre><code>&lt;script defer src="/_vercel/insights/script.js"&gt;&lt;/script&gt;</code></pre>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/analytics">Vercel Analytics</a>.
-    </p>
-    <h2>Integrated with git</h2>
-    <p>
-      Deploying updates to your site is as simple as
-      <code>git push</code> thanks to Vercel's advanced
-      <a href="https://vercel.com/docs/concepts/git">Git Integration</a>.
-      Support for GitHub, GitLab, Bitbucket is zero-configuration, and with the
-      flexible Vercel CLI and API, you can integrate with any tool possible.
-    </p>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/docs/concepts/git">Git Integration</a>.
-    </p>
-    <h2>Fast <code>gzip</code> compression</h2>
-    <p>
-      To help ensure the smallest possible file sizes for your static assets,
-      the Vercel Edge Network compresses files by default using
-      <code>gzip</code>. You can also optionally use
-      <code>brotli</code> compressesion if you prefer.
-    </p>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/docs/concepts/edge-network/compression"
-        >compression</a
-      >.
-    </p>
-    <h2>Advanced routing configuration</h2>
-    <p>
-      Vercel gives you a variety of ways to configure the routing of your
-      website. For example, adding redirects, rewrites, or headers to your page.
-      While you can use <code>vercel.json</code> to define these through JSON,
-      you can also express your routing configuration as code using
-      <a href="https://vercel.com/docs/concepts/functions/edge-middleware"
-        >Vercel Edge Middleware</a
-      >.
-    </p>
-    <p>
-      Middleware runs before the
-      <a href="https://vercel.com/docs/concepts/edge-network/caching"
-        >Vercel Edge Network Cache</a
-      >, so you can configure routing exactly as your application needs. For
-      example, this template uses <code>middleware.js</code> defined in the root
-      of the repository to add additional security headers to the site:
-    </p>
-    <pre><code>referrer-policy: origin-when-cross-origin
-strict-transport-security: max-age=31536000; includeSubDomains; preload
-x-content-type-options: nosniff
-x-dns-prefetch-control: on
-x-frame-options: DENY</code></pre>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/docs/concepts/functions/edge-middleware"
-        >Vercel Edge Middleware</a
-      >.
-    </p>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>drop</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    background:#0b0b0b; color:#d4d4d4;
+    font:14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    max-width:900px; margin:40px auto; padding:0 16px;
+  }
+  h1 { font-size:18px; font-weight:600; letter-spacing:.5px; color:#fff; margin:0 0 24px; }
+  a { color:#7cc4ff; text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .upload {
+    border:1px dashed #2a2a2a; padding:20px; margin-bottom:32px;
+    border-radius:6px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+  }
+  input[type=file] { color:#aaa; flex:1; min-width:200px; }
+  button {
+    background:#1c1c1c; color:#fff; border:1px solid #2a2a2a;
+    padding:6px 14px; border-radius:4px; cursor:pointer; font:inherit;
+  }
+  button:hover { background:#2a2a2a; }
+  button:disabled { opacity:.5; cursor:default; }
+  .row {
+    border-bottom:1px solid #1c1c1c; padding:10px 0;
+    display:flex; justify-content:space-between; gap:12px; align-items:baseline;
+  }
+  .name { color:#fff; word-break:break-all; }
+  .meta { color:#666; font-size:12px; white-space:nowrap; }
+  .status { margin:12px 0; min-height:18px; }
+  .err { color:#ff6b6b; }
+  .ok  { color:#7cc98a; }
+  .empty { color:#666; }
+  .bar { height:4px; background:#1c1c1c; border-radius:2px; overflow:hidden; margin-top:8px; }
+  .bar > i { display:block; height:100%; background:#7cc4ff; width:0; transition:width .15s; }
+</style>
+</head>
+<body>
+<h1>drop</h1>
+
+<div class="upload">
+  <input type="file" id="f">
+  <button id="go">upload</button>
+  <div class="status" id="s"></div>
+  <div class="bar" id="bar"><i></i></div>
+</div>
+
+<div id="list"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = n => n < 1024 ? n + ' B'
+              : n < 1048576 ? (n/1024).toFixed(1) + ' KB'
+              : (n/1048576).toFixed(1) + ' MB';
+
+async function load() {
+  const r = await fetch('/api/list');
+  const { blobs } = await r.json();
+  const list = $('list');
+  if (!blobs.length) {
+    list.innerHTML = '<div class="empty">nothing yet.</div>';
+    return;
+  }
+  list.innerHTML = blobs.map(b => `
+    <div class="row">
+      <div class="name"><a href="${b.url}" target="_blank" rel="noopener">${escapeHtml(b.name)}</a></div>
+      <div class="meta">${fmt(b.size)} · ${new Date(b.uploaded).toISOString().slice(0,19).replace('T',' ')}</div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+$('go').onclick = () => {
+  const file = $('f').files[0];
+  if (!file) { $('s').className='status err'; $('s').textContent='pick a file'; return; }
+
+  const fd = new FormData();
+  fd.append('f', file);
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/upload');
+  xhr.upload.onprogress = e => {
+    if (e.lengthComputable) $('bar').firstElementChild.style.width = (e.loaded/e.total*100)+'%';
+  };
+  xhr.onload = () => {
+    $('bar').firstElementChild.style.width = '0';
+    if (xhr.status === 200) {
+      $('s').className='status ok';
+      $('s').textContent='uploaded';
+      $('f').value='';
+      load();
+    } else {
+      $('s').className='status err';
+      $('s').textContent = 'failed: ' + xhr.responseText;
+    }
+  };
+  xhr.onerror = () => {
+    $('s').className='status err';
+    $('s').textContent='network error';
+  };
+  $('s').className='status';
+  $('s').textContent='uploading…';
+  xhr.send(fd);
+};
+
+load();
+</script>
+</body>
 </html>
